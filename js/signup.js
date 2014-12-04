@@ -56,17 +56,22 @@ function validateForm(form) {
     var formValid = true;
 
     for(i=0; i < requiredFields.length; ++i) {
-        formValid &= validateRequiredField(form.elements[requiredFiedls[i]]);
+        formValid &= validateRequiredField(form.elements[requiredFields[i]]);
     }
 
     if(form.elements['occupation'].value == "other") {
         formValid &= validateRequiredField(form.elements['occupationOther']);
     }
-f   //check whether zip is in valid format
-    formValid &= zipcodeValidate(form.elements['zip']);
+   //check whether zip is in valid format
+    try {
+        formValid &= zipcodeValidate(form.elements['zip']);
 
-    //check whether the user is more than 13 years older
-    formValid &= ageValidate(form.elements['birthdate']);
+        //check whether the user is more than 13 years older
+        formValid &= ageValidate(form.elements['birthdate']);
+    } catch(e) {
+        alert(e);
+    }
+
 
     return formValid;
 } //validateForm()
@@ -84,7 +89,18 @@ function zipcodeValidate(zip) {
 }
 
 function ageValidate(birthdate) {
-// to do
+    var age = moment().diff(birthdate.value, 'years');
+    var valid = age > 13;
+    if(valid) {
+        birthdate.className = 'form-control';
+    } else {
+        //visually changes bad fields for the user by changing the class of the field which has a different CSS red border
+        birthdate.className = 'form-control invalid-field';
+        var birthdateMessage = document.getElementById('birthdateMessage');
+        birthdateMessage.innerHTML = "You must be older than 13 to sign up";
+    }
+
+    return valid;
 }
 
 function validateRequiredField(field) {
